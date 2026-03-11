@@ -1,82 +1,30 @@
-const express = require("express");
-const cors = require("cors");
+const express = require("express")
+const cors = require("cors")
 
-const app = express();
-const PORT = 3000;
+const routes = require("./routes")
 
-app.use(cors());
-app.use(express.json());
+const app = express()
 
-/*
-PipelineForge API
-Simple backend to power outreach system
-*/
+app.use(cors())
+app.use(express.json())
+
+app.use("/api",routes)
 
 
-// ROOT TEST
-app.get("/", (req, res) => {
+app.get("/",(req,res)=>{
 
 res.json({
-name: "PipelineForge API",
-status: "running"
-});
+name:"PipelineForge API",
+status:"running"
+})
 
-});
-
-
-// SEARCH BUSINESSES
-app.get("/search", (req, res) => {
-
-const industry = req.query.industry || "business";
-const city = req.query.city || "city";
-
-/*
-Demo generator
-Later you replace with real scraper
-*/
-
-let results = [];
-
-for (let i = 1; i <= 10; i++) {
-
-results.push({
-
-name: `${industry} Company ${i}`,
-email: `contact${i}@${industry}.com`,
-phone: `+27 60 000 000${i}`,
-website: `https://${industry}${i}.com`,
-city: city,
-industry: industry
-
-});
-
-}
-
-res.json(results);
-
-});
+})
 
 
+const PORT = process.env.PORT || 3000
 
-// SAVE LEAD
-app.post("/lead", (req, res) => {
+app.listen(PORT,()=>{
 
-const lead = req.body;
+console.log(`PipelineForge running on port ${PORT}`)
 
-console.log("New Lead:", lead);
-
-res.json({
-message: "Lead saved",
-lead: lead
-});
-
-});
-
-
-
-// START SERVER
-app.listen(PORT, () => {
-
-console.log(`PipelineForge server running on port ${PORT}`);
-
-});
+})
