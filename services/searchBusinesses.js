@@ -8,17 +8,24 @@ let businesses = []
 const seen = new Set()
 
 const queries = [
-`${industry} company in ${city} south africa`,
-`${industry} transport company in ${city}`,
-`${industry} logistics company in ${city}`,
+
+`${industry} company ${city} site:.co.za`,
+`${industry} services ${city} site:.co.za`,
+`${industry} business ${city} site:.co.za`,
+
+`"${industry} company" ${city} contact`,
+`"${industry} company" ${city} phone`,
+`"${industry} company" ${city} address`,
+
+`${industry} transport company ${city}`,
 `${industry} freight company ${city}`,
 `${industry} courier service ${city}`,
-`${industry} trucking company ${city}`,
-`${industry} warehouse logistics ${city}`,
-`${industry} shipping company ${city}`,
 `${industry} distribution company ${city}`,
-`${industry} transport services ${city}`
-]
+
+`${industry} companies near ${city}`,
+`${industry} logistics services ${city}`
+
+]]
 
 // directory / junk sites we ignore
 const blockedDomains = [
@@ -63,8 +70,7 @@ try{
 
 for(const query of queries){
 
-for(let page = 0; page <= 50; page += 10){
-
+for(let page = 0; page <= 80; page += 10){
 const url = `https://www.bing.com/search?q=${encodeURIComponent(query)}&first=${page}`
 
 const response = await axios.get(url,{
@@ -117,6 +123,7 @@ seen.add(website)
 
 // extract contacts
 const contact = await extractContactInfo(website)
+await new Promise(resolve => setTimeout(resolve, 500))
 
 businesses.push({
 name,
@@ -129,7 +136,7 @@ city
 })
 
 // limit results
-if(businesses.length >= 50){
+if(businesses.length >= 200){
 return businesses
 }
 
