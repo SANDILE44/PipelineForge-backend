@@ -85,6 +85,8 @@ let website = $(el).find("a").attr("href")
 if(!name || !website) continue
 
 if(!website.startsWith("http")) continue
+if(website.includes(".pdf")) continue
+if(website.includes("search?")) continue
 
 // decode bing redirect
 if(website.includes("bing.com")){
