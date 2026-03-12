@@ -2,6 +2,15 @@ const axios = require("axios")
 const cheerio = require("cheerio")
 const extractContactInfo = require("./extractContactInfo")
 
+function cleanDomain(url){
+  try{
+    const u = new URL(url)
+    return u.origin
+  }catch{
+    return null
+  }
+}
+
 async function searchBusinesses(industry, city){
 
 let businesses = []
@@ -9,26 +18,18 @@ const seen = new Set()
 
 const queries = [
 
-`${industry} company ${city} site:.co.za`,
-`${industry} services ${city} site:.co.za`,
-`${industry} business ${city} site:.co.za`,
-
-`"${industry} company" ${city} contact`,
-`"${industry} company" ${city} phone`,
-`"${industry} company" ${city} address`,
-
-`${industry} transport company ${city}`,
-`${industry} freight company ${city}`,
-`${industry} courier service ${city}`,
-`${industry} distribution company ${city}`,
-
+`${industry} company in ${city}`,
+`${industry} services ${city}`,
+`${industry} business ${city}`,
 `${industry} companies near ${city}`,
-`${industry} logistics services ${city}`
+`${industry} firms ${city}`,
+`${industry} providers ${city}`
 
-]]
+]
 
-// directory / junk sites we ignore
+// domains we block
 const blockedDomains = [
+
 "yellowpages",
 "infoisinfo",
 "firmania",
@@ -37,40 +38,28 @@ const blockedDomains = [
 "thinklocal",
 "netpages",
 "rentechdigital",
-
-// news & social
-"supplychaindive",
-"wikipedia",
-"forbes",
-"cnn",
-"bbc",
-"nytimes",
-"reddit",
-"youtube",
 "facebook",
 "linkedin",
-"twitter",
 "instagram",
-"zhihu",
-
-// extra junk filters
-"medium",
+"youtube",
+"twitter",
+"pinterest",
+"reddit",
+"wikipedia",
+"indeed",
+"glassdoor",
 "blog",
 "news",
-"article",
-"pinterest",
-"tiktok",
-"quora",
-"stackexchange",
-"indeed",
-"glassdoor"
+"article"
+
 ]
 
 try{
 
 for(const query of queries){
 
-for(let page = 0; page <= 80; page += 10){
+for(let page = 0; page <= 30; page += 10){
+
 const url = `https://www.bing.com/search?q=${encodeURIComponent(query)}&first=${page}`
 
 const response = await axios.get(url,{
@@ -89,10 +78,7 @@ const name = $(el).find("h2").text().trim()
 let website = $(el).find("a").attr("href")
 
 if(!name || !website) continue
-
 if(!website.startsWith("http")) continue
-if(website.includes(".pdf")) continue
-if(website.includes("search?")) continue
 
 // decode bing redirect
 if(website.includes("bing.com")){
@@ -105,9 +91,12 @@ website = Buffer.from(match[1],"base64").toString("utf8")
 }
 }
 
-// skip blocked domains
-let blocked = false
+// clean domain
+website = cleanDomain(website)
+if(!website) continue
 
+// block junk domains
+let blocked = false
 for(const domain of blockedDomains){
 if(website.includes(domain)){
 blocked = true
@@ -121,22 +110,25 @@ if(blocked) continue
 if(seen.has(website)) continue
 seen.add(website)
 
-// extract contacts
+// delay to avoid blocking
+await new Promise(r=>setTimeout(r,700))
+
+// extract contact info
 const contact = await extractContactInfo(website)
-await new Promise(resolve => setTimeout(resolve, 500))
 
 businesses.push({
+
 name,
 website,
-email: contact.email,
-phone: contact.phone,
-whatsapp: contact.whatsapp,
+email: contact.email || "",
+phone: contact.phone || "",
+whatsapp: contact.whatsapp || "",
 industry,
 city
+
 })
 
-// limit results
-if(businesses.length >= 200){
+if(businesses.length >= 120){
 return businesses
 }
 
@@ -148,7 +140,7 @@ return businesses
 
 }catch(err){
 
-console.log("Search error:", err.message)
+console.log("Search error:",err.message)
 
 }
 
