@@ -1,8 +1,3 @@
-const express = require("express")
-const router = express.Router()
-
-const { searchBusinesses } = require("../services/searchBusinesses")
-
 router.get("/search", async (req,res)=>{
 
 try{
@@ -18,7 +13,12 @@ error:"industry and city required"
 
 }
 
-const results = await searchBusinesses(industry,city)
+// run both searches
+const webResults = await searchBusinesses(industry,city)
+const osmResults = await searchOSMBusinesses(industry,city)
+
+// merge results
+const results = [...webResults, ...osmResults]
 
 res.json(results)
 
@@ -33,5 +33,3 @@ error:"server error"
 }
 
 })
-
-module.exports = router
