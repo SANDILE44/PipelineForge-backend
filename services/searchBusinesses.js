@@ -8,11 +8,16 @@ let businesses = []
 const seen = new Set()
 
 const queries = [
-`${industry} companies in ${city}`,
-`${industry} services in ${city}`,
+`${industry} company ${city} south africa`,
+`${industry} services ${city} south africa`,
+`${industry} firm ${city}`,
 `${industry} business ${city}`,
-`${industry} providers in ${city}`,
-`${industry} company ${city}`
+`${industry} providers ${city}`,
+`${industry} contractors ${city}`,
+`${industry} companies near ${city}`,
+`${industry} solutions ${city}`,
+`${industry} logistics company ${city}`,
+`${industry} transport company ${city}`
 ]
 
 // directory sites we ignore
