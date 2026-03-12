@@ -1,8 +1,7 @@
 const express = require("express")
 const router = express.Router()
 
-const { searchBusinesses } = require("./services/searchBusinesses")
-
+const searchBusinesses = require("./services/searchBusinesses")
 
 // search businesses
 router.get("/search", async (req,res)=>{
@@ -27,8 +26,11 @@ console.log("Saved lead:",lead)
 res.json({
 message:"Lead stored",
 lead
+
 })
 
 })
 
 module.exports = router
+
+

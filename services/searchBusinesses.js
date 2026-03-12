@@ -1,77 +1,116 @@
-kconst axios = require("axios")
+const axios = require("axios")
 const cheerio = require("cheerio")
+const extractContactInfo = require("./extractContactInfo")
 
-async function extractContactInfo(url){
-
-let email = ""
-let phone = ""
-
-try{
-
-const res = await axios.get(url,{timeout:5000})
-const html = res.data
-
-const emailMatch = html.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)
-const phoneMatch = html.match(/(\+?\d[\d\s\-]{7,})/)
-
-if(emailMatch) email = emailMatch[0]
-if(phoneMatch) phone = phoneMatch[0]
-
-}catch(err){
-console.log("Contact scrape failed:",url)
-}
-
-return {email,phone}
-
-}
-
-async function searchBusinesses(industry,city){
+async function searchBusinesses(industry, city){
 
 let businesses = []
+const seen = new Set()
+
+const queries = [
+`${industry} companies in ${city}`,
+`${industry} services in ${city}`,
+`${industry} business ${city}`,
+`${industry} providers in ${city}`,
+`${industry} company ${city}`
+]
+
+// directory sites we ignore
+const blockedDomains = [
+"yellowpages",
+"infoisinfo",
+"firmania",
+"procompare",
+"cylex",
+"thinklocal",
+"netpages",
+"rentechdigital"
+]
 
 try{
 
-const query = `${industry} companies in ${city}`
-const url = `https://www.bing.com/search?q=${encodeURIComponent(query)}`
+for(const query of queries){
 
-const response = await axios.get(url)
+for(let page = 0; page <= 30; page += 10){
+
+const url = `https://www.bing.com/search?q=${encodeURIComponent(query)}&first=${page}`
+
+const response = await axios.get(url,{
+headers:{ "User-Agent":"Mozilla/5.0" }
+})
+
 const $ = cheerio.load(response.data)
 
-$("li.b_algo").each(async (i,el)=>{
+const results = $("li.b_algo")
 
-const name = $(el).find("h2").text()
-const website = $(el).find("a").attr("href")
+for(let i = 0; i < results.length; i++){
 
-if(
-name &&
-website &&
-!website.includes("bing.com") &&
-!website.includes("africanadvice") &&
-!website.includes("cylex") &&
-!website.includes("procompare")
-){
+const el = results[i]
 
+const name = $(el).find("h2").text().trim()
+let website = $(el).find("a").attr("href")
+
+if(!name || !website) continue
+
+// decode bing redirect
+if(website.includes("bing.com")){
+const match = website.match(/u=a1([^&]+)/)
+
+if(match){
+try{
+website = Buffer.from(match[1],"base64").toString("utf8")
+}catch{}
+}
+}
+
+// skip blocked domains
+let blocked = false
+
+for(const domain of blockedDomains){
+if(website.includes(domain)){
+blocked = true
+break
+}
+}
+
+if(blocked) continue
+
+// remove duplicates
+if(seen.has(website)) continue
+seen.add(website)
+
+// extract contacts
 const contact = await extractContactInfo(website)
 
 businesses.push({
 name,
 website,
-email:contact.email,
-phone:contact.phone,
+email: contact.email,
+phone: contact.phone,
+whatsapp: contact.whatsapp,
 industry,
 city
 })
 
+// limit results
+if(businesses.length >= 50){
+return businesses
 }
 
-})
+}
 
-}catch(error){
-console.log("Search error:",error.message)
+}
+
+}
+
+}catch(err){
+
+console.log("Search error:", err.message)
+
 }
 
 return businesses
 
 }
 
-module.exports = {searchBusinesses}
+module.exports = searchBusinesses
