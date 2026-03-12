@@ -51,7 +51,7 @@ try{
 
 for(const query of queries){
 
-for(let page = 0; page <= 30; page += 10){
+for(let page = 0; page <= 50; page += 10)
 
 const url = `https://www.bing.com/search?q=${encodeURIComponent(query)}&first=${page}`
 
