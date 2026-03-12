@@ -1,7 +1,7 @@
 const express = require("express")
 const router = express.Router()
 
-const { searchBusinesses } = require("./scraper")
+const { searchBusinesses } = require("./services/searchBusinesses")
 
 
 // search businesses
@@ -30,6 +30,5 @@ lead
 })
 
 })
-
 
 module.exports = router

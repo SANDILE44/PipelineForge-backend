@@ -1,24 +1,32 @@
-async function searchBusinesses(industry,city){
+const axios = require("axios")
+const cheerio = require("cheerio")
 
-let businesses = []
+async function searchBusinesses(industry, city){
 
-for(let i=1;i<=10;i++){
+ const query = `${industry} companies in ${city}`
+ const url = `https://www.bing.com/search?q=${encodeURIComponent(query)}`
 
-businesses.push({
+ const response = await axios.get(url)
 
-name:`${industry} Company ${i}`,
-email:`contact${i}@${industry}.com`,
-phone:`+27 60 000 000${i}`,
-website:`https://${industry}${i}.com`,
-industry:industry,
-city:city
+ const $ = cheerio.load(response.data)
 
-})
+ const businesses = []
 
-}
+ $("li.b_algo h2 a").each((i,el)=>{
 
-return businesses
+  const name = $(el).text()
+  const website = $(el).attr("href")
 
+  businesses.push({
+   name,
+   website,
+   industry,
+   city
+  })
+
+ })
+
+ return businesses
 }
 
 module.exports = { searchBusinesses }
