@@ -20,7 +20,7 @@ const queries = [
 `${industry} transport company ${city}`
 ]
 
-// directory sites we ignore
+// directory / junk sites we ignore
 const blockedDomains = [
 "yellowpages",
 "infoisinfo",
@@ -31,7 +31,7 @@ const blockedDomains = [
 "netpages",
 "rentechdigital",
 
-// news & social junk
+// news / social
 "supplychaindive",
 "wikipedia",
 "forbes",
@@ -51,7 +51,7 @@ try{
 
 for(const query of queries){
 
-for(let page = 0; page <= 50; page += 10)
+for(let page = 0; page <= 50; page += 10){
 
 const url = `https://www.bing.com/search?q=${encodeURIComponent(query)}&first=${page}`
 
