@@ -24,7 +24,22 @@ const blockedDomains = [
 "cylex",
 "thinklocal",
 "netpages",
-"rentechdigital"
+"rentechdigital",
+
+// news & social junk
+"supplychaindive",
+"wikipedia",
+"forbes",
+"cnn",
+"bbc",
+"nytimes",
+"reddit",
+"youtube",
+"facebook",
+"linkedin",
+"twitter",
+"instagram",
+"zhihu"
 ]
 
 try{
