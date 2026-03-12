@@ -8,16 +8,16 @@ let businesses = []
 const seen = new Set()
 
 const queries = [
-`${industry} company ${city} south africa`,
-`${industry} services ${city} south africa`,
-`${industry} firm ${city}`,
-`${industry} business ${city}`,
-`${industry} providers ${city}`,
-`${industry} contractors ${city}`,
-`${industry} companies near ${city}`,
-`${industry} solutions ${city}`,
-`${industry} logistics company ${city}`,
-`${industry} transport company ${city}`
+`${industry} company in ${city} south africa`,
+`${industry} transport company in ${city}`,
+`${industry} logistics company in ${city}`,
+`${industry} freight company ${city}`,
+`${industry} courier service ${city}`,
+`${industry} trucking company ${city}`,
+`${industry} warehouse logistics ${city}`,
+`${industry} shipping company ${city}`,
+`${industry} distribution company ${city}`,
+`${industry} transport services ${city}`
 ]
 
 // directory / junk sites we ignore
@@ -31,7 +31,7 @@ const blockedDomains = [
 "netpages",
 "rentechdigital",
 
-// news / social
+// news & social
 "supplychaindive",
 "wikipedia",
 "forbes",
@@ -44,7 +44,19 @@ const blockedDomains = [
 "linkedin",
 "twitter",
 "instagram",
-"zhihu"
+"zhihu",
+
+// extra junk filters
+"medium",
+"blog",
+"news",
+"article",
+"pinterest",
+"tiktok",
+"quora",
+"stackexchange",
+"indeed",
+"glassdoor"
 ]
 
 try{
@@ -71,6 +83,8 @@ const name = $(el).find("h2").text().trim()
 let website = $(el).find("a").attr("href")
 
 if(!name || !website) continue
+
+if(!website.startsWith("http")) continue
 
 // decode bing redirect
 if(website.includes("bing.com")){
